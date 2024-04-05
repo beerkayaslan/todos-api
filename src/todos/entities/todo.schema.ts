@@ -13,7 +13,7 @@ export class Todo {
     userId: Types.ObjectId;
 
     @Prop({ default: null })
-    imageUrl?: string;
+    imageUrl?: string | null;
 }
 
 export const TodoSchema = SchemaFactory.createForClass(Todo);

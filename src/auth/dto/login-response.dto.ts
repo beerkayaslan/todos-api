@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Types } from "mongoose";
 
-class UserDetailResponseDto {
+export class UserDetailResponseDto {
     @ApiProperty()
     email: string;
 

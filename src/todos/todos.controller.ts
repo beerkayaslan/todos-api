@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Request, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Request, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/auth/current-user.decorator';
-import { User } from 'src/auth/entities/user.schema';
+import { UserDetailResponseDto } from 'src/auth/dto/login-response.dto';
 
 @Controller('todos')
 export class TodosController {
@@ -15,8 +15,15 @@ export class TodosController {
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() createTodoDto: CreateTodoDto,
-    @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() user: User
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+            new MaxFileSizeValidator({ maxSize: 1024 * 1024 }), // 1MB
+            new FileTypeValidator({ fileType: 'image' }), // Only image files
+        ],
+    })
+    ) file: Express.Multer.File | undefined,
+    @CurrentUser() user: UserDetailResponseDto
   ) {
     return this.todosService.create(createTodoDto, file, user);
   }

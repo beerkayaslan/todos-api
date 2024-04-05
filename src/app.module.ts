@@ -21,9 +21,7 @@ import { TodosModule } from './todos/todos.module';
       dbName: config().DB_NAME,
     }),
     JwtModule.register({}),
-
     AuthModule,
-
     TodosModule],
   controllers: [AppController],
   providers: [AppService,
