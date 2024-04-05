@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
 import { TodosModule } from './todos/todos.module';
+import { AwsS3UploadModule } from './aws-s3-upload/aws-s3-upload.module';
 
 
 @Module({
@@ -22,13 +23,14 @@ import { TodosModule } from './todos/todos.module';
     }),
     JwtModule.register({}),
     AuthModule,
-    TodosModule],
+    TodosModule,
+  ],
   controllers: [AppController],
   providers: [AppService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
-    }
+    },
   ],
 })
 export class AppModule { }

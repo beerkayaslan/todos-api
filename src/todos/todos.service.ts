@@ -1,14 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
-import { User } from 'src/auth/entities/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { AwsS3UploadService } from 'src/aws-s3-upload/aws-s3-upload.service';
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './entities/todo.schema';
 import { Model } from 'mongoose';
 import { UserDetailResponseDto } from 'src/auth/dto/login-response.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AwsS3UploadService } from 'src/aws-s3-upload/aws-s3-upload.service';
 
 @ApiTags('todos')
 @Injectable()
@@ -16,7 +15,7 @@ export class TodosService {
 
   constructor(
     private readonly awsS3UploadService: AwsS3UploadService,
-    @InjectModel(Todo.name) private TodoModel: Model<Todo>,
+    @InjectModel(Todo.name) private todoModel: Model<Todo>,
   ) { }
 
   async create(createTodoDto: CreateTodoDto, file: Express.Multer.File | undefined, user: UserDetailResponseDto) {
@@ -30,7 +29,7 @@ export class TodosService {
         imageUrl = await this.awsS3UploadService.upload(file, key);
       }
 
-      const createdTodo = new this.TodoModel({
+      const createdTodo = new this.todoModel({
         ...createTodoDto,
         imageUrl: imageUrl ? imageUrl : null,
         userId: user._id,
