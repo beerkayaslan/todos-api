@@ -5,9 +5,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './entities/todo.schema';
 import { Model } from 'mongoose';
-import { UserDetailResponseDto } from 'src/auth/dto/login-response.dto';
+import { UserDetailResponseDto } from '../auth/dto/login-response.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { AwsS3UploadService } from 'src/aws-s3-upload/aws-s3-upload.service';
+import { AwsS3UploadService } from '../aws-s3-upload/aws-s3-upload.service';
 
 @ApiTags('todos')
 @Injectable()

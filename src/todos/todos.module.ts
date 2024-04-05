@@ -3,7 +3,7 @@ import { TodosService } from './todos.service';
 import { TodosController } from './todos.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Todo, TodoSchema } from './entities/todo.schema';
-import { AwsS3UploadModule } from 'src/aws-s3-upload/aws-s3-upload.module';
+import { AwsS3UploadModule } from '../aws-s3-upload/aws-s3-upload.module';
 
 @Module({
   imports: [

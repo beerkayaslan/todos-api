@@ -3,8 +3,8 @@ import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CurrentUser } from 'src/auth/current-user.decorator';
-import { UserDetailResponseDto } from 'src/auth/dto/login-response.dto';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { UserDetailResponseDto } from '../auth/dto/login-response.dto';
 
 @Controller('todos')
 export class TodosController {
