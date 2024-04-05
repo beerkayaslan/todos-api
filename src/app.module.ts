@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
+import { TodosModule } from './todos/todos.module';
 
 
 @Module({
@@ -21,7 +22,9 @@ import { Module } from '@nestjs/common';
     }),
     JwtModule.register({}),
 
-    AuthModule],
+    AuthModule,
+
+    TodosModule],
   controllers: [AppController],
   providers: [AppService,
     {
