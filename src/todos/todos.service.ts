@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { User } from 'src/auth/entities/user.schema';
 
 @Injectable()
 export class TodosService {
-  create(createTodoDto: CreateTodoDto) {
-    return 'This action adds a new todo';
+
+  
+  create(createTodoDto: CreateTodoDto, file: Express.Multer.File, user: User) {
+   
+    
   }
 
   findAll() {

@@ -11,8 +11,4 @@ export class CreateTodoDto {
     @ApiProperty()
     @IsNotEmpty()
     readonly status: TodoStatus;
-
-    @ApiProperty()
-    @IsOptional()
-    readonly file?: Express.Multer.File;
 }

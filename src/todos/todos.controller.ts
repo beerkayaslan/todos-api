@@ -3,30 +3,22 @@ import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { User } from 'src/auth/entities/user.schema';
 
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) { }
-
-  // @Post()
-  // create(@Body() createTodoDto: CreateTodoDto) {
-  //   return this.todosService.create(createTodoDto);
-  // }
 
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() createTodoDto: CreateTodoDto,
-    @Request() req,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: User
   ) {
-    return this.todosService.create(
-      {
-        ...createTodoDto,
-        file
-      }
-    );
+    return this.todosService.create(createTodoDto, file, user);
   }
 
   @Get()
