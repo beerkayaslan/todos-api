@@ -25,7 +25,7 @@ export class TodosService {
 
       if (file) {
         const id = uuidv4();
-        const key = `${id}-${file.originalname}`;
+        const key = `${id}`;
         imageUrl = await this.awsS3UploadService.upload(file, key);
       }
 
