@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import config from './config'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,7 +15,6 @@ async function bootstrap() {
   app.enableCors({
     origin: "*",
   });
-
   
   const SwaggerConfig = new DocumentBuilder()
     .setTitle('Todos API')
@@ -28,6 +26,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   
-  await app.listen(config().PORT);
+  await app.listen(3000);
 }
 bootstrap();
