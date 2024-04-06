@@ -4,10 +4,11 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './entities/todo.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { UserDetailResponseDto } from '../auth/dto/login-response.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AwsS3UploadService } from '../aws-s3-upload/aws-s3-upload.service';
+import { GetTodoDto } from './dto/get-todo.dto';
 
 @ApiTags('todos')
 @Injectable()
@@ -43,19 +44,107 @@ export class TodosService {
 
   }
 
-  findAll() {
-    return `This action returns all todos`;
+  async findAll(getTodoDto: GetTodoDto, user: UserDetailResponseDto) {
+    try {
+      const { page = 1, limit = 10, search, searchKeys, status } = getTodoDto;
+      const skip = (Number(page) - 1) * Number(limit);
+      let query = {};
+
+      if (search && searchKeys) {
+        const searchFields = searchKeys.split(',');
+        const searchConditions = searchFields.map((field) => ({
+          [field]: { $regex: new RegExp(search, 'i') }, // Case insensitive search
+        }));
+        query = { $or: searchConditions };
+      }
+
+      if (status) {
+        query = { ...query, status };
+      }
+
+      query = { ...query, userId: user._id };
+
+      const total = await this.todoModel.countDocuments(query);
+      const langs = await this.todoModel.find(query)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+      const meta = {
+        page: Number(page),
+        perPage: Number(limit),
+        total,
+      };
+
+      return { data: langs, meta };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOne(id: Types.ObjectId, user: UserDetailResponseDto) {
+    try {
+      return await this.todoModel.findOne({ _id: id, userId: user._id });
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    return `This action updates a #${id} todo`;
+  async update(id: Types.ObjectId, updateTodoDto: UpdateTodoDto, file: Express.Multer.File | undefined, user: UserDetailResponseDto) {
+    try {
+
+      let imageUrl = undefined;
+
+      const find = await this.todoModel.findOne({ _id: id, userId: user._id });
+
+
+
+      if (file) {
+
+        if (find.imageUrl) {
+          await this.awsS3UploadService.delete(find.imageUrl);
+        }
+
+        const id = uuidv4();
+        const key = `${id}`;
+        imageUrl = await this.awsS3UploadService.upload(file, key);
+      }
+
+      const updatedTodo = await this.todoModel.findOneAndUpdate(
+        { _id: id, userId: user._id },
+        {
+          ...updateTodoDto,
+          imageUrl: imageUrl ? imageUrl : null,
+        },
+        { new: true }
+      );
+
+      if (!updatedTodo) {
+        throw new BadRequestException('Todo not found');
+      }
+
+      return updatedTodo;
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: Types.ObjectId, user: UserDetailResponseDto) {
+    try {
+
+      const deletedTodo = await this.todoModel.findOneAndDelete({ _id: id, userId: user._id });
+
+      if (!deletedTodo) {
+        throw new BadRequestException('Todo not found');
+      }
+
+      await this.awsS3UploadService.delete(deletedTodo.imageUrl);
+
+      return deletedTodo;
+
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+
   }
 }
