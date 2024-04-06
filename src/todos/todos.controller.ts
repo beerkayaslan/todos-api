@@ -29,7 +29,7 @@ export class TodosController {
     ) file: Express.Multer.File | undefined,
     @CurrentUser() user: UserDetailResponseDto
   ) {
-    return this.todosService.create(createTodoDto, undefined, user);
+    return this.todosService.create(createTodoDto, file, user);
   }
 
   @Get()
