@@ -48,12 +48,13 @@ export class TodosController {
     @Param('id') id: Types.ObjectId,
     @UploadedFile(
       new ParseFilePipe({
+        fileIsRequired: false,
         validators: [
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 }), // 1MB
           new FileTypeValidator({ fileType: 'image' }), // Only image files
         ],
       })
-    ) file: Express.Multer.File | undefined,
+    ) file: Express.Multer.File | undefined | string,
     @Body() updateTodoDto: UpdateTodoDto,
     @CurrentUser() user: UserDetailResponseDto) {
     return this.todosService.update(id, updateTodoDto, file, user);

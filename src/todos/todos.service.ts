@@ -90,24 +90,25 @@ export class TodosService {
     }
   }
 
-  async update(id: Types.ObjectId, updateTodoDto: UpdateTodoDto, file: Express.Multer.File | undefined, user: UserDetailResponseDto) {
+  async update(id: Types.ObjectId, updateTodoDto: UpdateTodoDto, file: Express.Multer.File | undefined | string, user: UserDetailResponseDto) {
     try {
 
       let imageUrl = undefined;
 
       const find = await this.todoModel.findOne({ _id: id, userId: user._id });
 
+      if (file === undefined && find.imageUrl !== null && find.imageUrl !== undefined && find.imageUrl !== '' && typeof file === 'string') {
+        await this.awsS3UploadService.delete(find.imageUrl);
+      }
 
-
-      if (file) {
-
+      if (file !== 'dont-touch' && file !== undefined && file !== null && file !== '' && typeof file !== 'string') {
         if (find.imageUrl) {
           await this.awsS3UploadService.delete(find.imageUrl);
         }
 
         const id = uuidv4();
         const key = `${id}`;
-        imageUrl = await this.awsS3UploadService.upload(file, key);
+        imageUrl = await this.awsS3UploadService.upload(file as Express.Multer.File, key);
       }
 
       const updatedTodo = await this.todoModel.findOneAndUpdate(
