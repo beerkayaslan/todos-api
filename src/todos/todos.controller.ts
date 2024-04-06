@@ -54,14 +54,14 @@ export class TodosController {
           new FileTypeValidator({ fileType: 'image' }), // Only image files
         ],
       })
-    ) file: Express.Multer.File | undefined | string,
+    ) file: Express.Multer.File | string | undefined,
     @Body() updateTodoDto: UpdateTodoDto,
     @CurrentUser() user: UserDetailResponseDto) {
     return this.todosService.update(id, updateTodoDto, file, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: Types.ObjectId, @CurrentUser() user: UserDetailResponseDto) {
+  remove(@Param('id') id: string, @CurrentUser() user: UserDetailResponseDto) {
     return this.todosService.remove(id, user);
   }
 }

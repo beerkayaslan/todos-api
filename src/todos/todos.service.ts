@@ -27,7 +27,8 @@ export class TodosService {
       if (file) {
         const id = uuidv4();
         const key = `${id}`;
-        imageUrl = await this.awsS3UploadService.upload(file, key);
+        await this.awsS3UploadService.upload(file, key);
+        imageUrl = key;
       }
 
       const createdTodo = new this.todoModel({
@@ -90,25 +91,36 @@ export class TodosService {
     }
   }
 
-  async update(id: Types.ObjectId, updateTodoDto: UpdateTodoDto, file: Express.Multer.File | undefined | string, user: UserDetailResponseDto) {
+  async update(id: Types.ObjectId, updateTodoDto: UpdateTodoDto, file: Express.Multer.File | string | undefined, user: UserDetailResponseDto) {
     try {
 
       let imageUrl = undefined;
 
       const find = await this.todoModel.findOne({ _id: id, userId: user._id });
 
-      if (file === undefined && find.imageUrl !== null && find.imageUrl !== undefined && find.imageUrl !== '' && typeof file === 'string') {
-        await this.awsS3UploadService.delete(find.imageUrl);
+      const imgStatus = updateTodoDto.imgStatus;
+
+      if (imgStatus === 'remove') {
+        if (find.imageUrl) {
+          await this.awsS3UploadService.delete(find.imageUrl);
+        }
       }
 
-      if (file !== 'dont-touch' && file !== undefined && file !== null && file !== '' && typeof file !== 'string') {
+      if (imgStatus === 'new' && file !== undefined) {
         if (find.imageUrl) {
           await this.awsS3UploadService.delete(find.imageUrl);
         }
 
-        const id = uuidv4();
-        const key = `${id}`;
-        imageUrl = await this.awsS3UploadService.upload(file as Express.Multer.File, key);
+        if (file !== undefined) {
+          const id = uuidv4();
+          const key = `${id}`;
+          await this.awsS3UploadService.upload(file as Express.Multer.File, key);
+          imageUrl = key;
+        }
+      }
+
+      if(imgStatus === 'dont-touch' ) {
+        imageUrl = find.imageUrl;
       }
 
       const updatedTodo = await this.todoModel.findOneAndUpdate(
@@ -130,18 +142,25 @@ export class TodosService {
     }
   }
 
-  async remove(id: Types.ObjectId, user: UserDetailResponseDto) {
+  async remove(ids: string , user: UserDetailResponseDto) {
     try {
 
-      const deletedTodo = await this.todoModel.findOneAndDelete({ _id: id, userId: user._id });
+      const allId = ids.split(',');
 
-      if (!deletedTodo) {
-        throw new BadRequestException('Todo not found');
-      }
+      await allId.forEach(async (id) => {
+        const deletedTodo = await this.todoModel.findOneAndDelete({ _id: id, userId: user._id });
 
-      await this.awsS3UploadService.delete(deletedTodo.imageUrl);
+        if (!deletedTodo) {
+          throw new BadRequestException('Todo not found');
+        }
 
-      return deletedTodo;
+        if (deletedTodo.imageUrl) {
+          await this.awsS3UploadService.delete(deletedTodo.imageUrl);
+        }
+       
+      });
+
+      return { message: 'Todo deleted successfully' };
 
     } catch (e) {
       throw new BadRequestException(e.message);
