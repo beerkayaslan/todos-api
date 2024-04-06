@@ -12,7 +12,7 @@ export class Todo {
     @Prop({ required: true })
     userId: Types.ObjectId;
 
-    @Prop({ default: null })
+    @Prop({ default: null, required: false })
     imageUrl?: string;
 }
 

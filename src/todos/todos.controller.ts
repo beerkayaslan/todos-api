@@ -20,6 +20,7 @@ export class TodosController {
     @Body() createTodoDto: CreateTodoDto,
     @UploadedFile(
       new ParseFilePipe({
+        fileIsRequired: false,
         validators: [
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 }), // 1MB
           new FileTypeValidator({ fileType: 'image' }), // Only image files
@@ -28,7 +29,7 @@ export class TodosController {
     ) file: Express.Multer.File | undefined,
     @CurrentUser() user: UserDetailResponseDto
   ) {
-    return this.todosService.create(createTodoDto, file, user);
+    return this.todosService.create(createTodoDto, undefined, user);
   }
 
   @Get()
@@ -59,7 +60,7 @@ export class TodosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: Types.ObjectId, @CurrentUser() user: UserDetailResponseDto){
+  remove(@Param('id') id: Types.ObjectId, @CurrentUser() user: UserDetailResponseDto) {
     return this.todosService.remove(id, user);
   }
 }
