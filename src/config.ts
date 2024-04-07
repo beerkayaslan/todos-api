@@ -1,6 +1,6 @@
 export default () => ({
     DB_HOST: "mongodb+srv://berkayaslan0965:ZioYMflo2e6qm3FW@cluster0.wpkknmt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    DB_NAME: "process.env.DB_NAME",
+    DB_NAME: "todos",
 
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     ACCESS_TOKEN_EXPIRATION: process.env.ACCESS_TOKEN_EXPIRATION,
