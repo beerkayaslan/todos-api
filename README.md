@@ -1,4 +1,4 @@
-# Todo Application
+# Todo Application with NestJS
 
 This is a Todo application built using NestJS, MongoDB, AWS S3 for image storage, JSON Web Tokens (JWT) for authentication, and bcrypt for password hashing. The project utilizes pnpm as the package manager.
 
