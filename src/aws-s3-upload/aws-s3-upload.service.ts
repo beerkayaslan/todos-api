@@ -5,9 +5,12 @@ import {
     PutObjectCommandInput,
     PutObjectCommandOutput,
     DeleteObjectCommand,
+    GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import * as sharp from 'sharp';
 import config from '../config';
+import * as fs from 'fs';
+
 
 @Injectable()
 export class AwsS3UploadService {
@@ -62,6 +65,26 @@ export class AwsS3UploadService {
 
         try {
             return await this.s3Client.send(new DeleteObjectCommand(input));
+        } catch (err) {
+            console.log(err);
+        }
+
+    }
+
+    async downloadImg(key: string) {
+        const input = {
+            Bucket: config().AWS_S3_BUCKET_NAME,
+            Key: key
+        };
+
+        try {
+            const { Body, ContentType } = await this.s3Client.send(new GetObjectCommand(input));
+
+            const streamToString = await Body?.transformToString("base64");
+
+            return Buffer.from(streamToString, 'base64');
+            
+
         } catch (err) {
             console.log(err);
         }
